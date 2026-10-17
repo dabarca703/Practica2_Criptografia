@@ -157,6 +157,40 @@ def decrypt(ciphertext: str, keyword: str) -> str:
 
     return plaintext
 
+import math
+
+
+def encrypt_double(
+    plaintext: str,
+    kw1: str,
+    kw2: str,
+    pad: str = "X"
+) -> str:
+    """Aplica dos transposiciones columnares consecutivas."""
+    normalized = to_letters(to_numbers(plaintext))
+
+    # key_order valida las claves y su longitud indica el número de columnas.
+    columns1 = len(key_order(kw1))
+    columns2 = len(key_order(kw2))
+
+    # Completamos hasta una longitud divisible por ambas claves.
+    block_size = math.lcm(columns1, columns2)
+    padding_needed = (-len(normalized)) % block_size
+    padded = normalized + _normalize_pad(pad) * padding_needed
+
+    # La salida de la primera pasada es la entrada de la segunda.
+    first_pass = encrypt(padded, kw1, pad)
+    return encrypt(first_pass, kw2, pad)
+
+
+def decrypt_double(ciphertext: str, kw1: str, kw2: str) -> str:
+    """Deshace las dos transposiciones en orden inverso."""
+    # Primero se deshace la última pasada; después, la primera.
+    after_second_pass = decrypt(ciphertext, kw2)
+    return decrypt(after_second_pass, kw1)
+
+
+
 
 
 
