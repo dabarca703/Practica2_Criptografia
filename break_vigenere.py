@@ -2,7 +2,9 @@
 
 from vigenere import cosets, decrypt
 from break_caesar import break_caesar
-from basics import to_letters
+from keylength import find_key_length
+from basics import to_numbers, to_letters
+
 
 def break_vigenere(ciphertext: str, m: int, language: str = "en") -> tuple[str, str]:
     # Validar que la longitud de clave sea valida
@@ -25,4 +27,22 @@ def break_vigenere(ciphertext: str, m: int, language: str = "en") -> tuple[str, 
     plaintext = decrypt(ciphertext, key)
     
     return key, plaintext
+
+def attack(ciphertext: str, language: str = "en") -> tuple[str, str]:
+    """Estima la longitud de clave y devuelve (clave, texto descifrado)."""
+    normalized = to_letters(to_numbers(ciphertext))
+
+    if not normalized:
+        raise ValueError("El texto cifrado debe contener letras A-Z")
+
+    key_length = find_key_length(normalized, language=language)
+    key, plaintext = break_vigenere(
+        normalized,
+        key_length,
+        language=language
+    )
+
+    return key, plaintext
+
+
 
